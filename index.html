@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FROGGY NARRATIVE - Master Narrative Text</title>
+    <style>
+        :root {
+            --primary: #4ade80;
+            --primary-dark: #22c55e;
+            --secondary: #3b82f6;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --water: rgba(59, 130, 246, 0.6);
+            --water-deep: rgba(30, 64, 175, 0.9);
+            --leaf: #65a30d;
+            --leaf-shadow: #4d7c0f;
+            --text-main: #334155;
+            --bg-sky: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none; /* Prevent scroll/zoom on mobile */
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-sky);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 10;
+        }
+
+        .screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+            z-index: -1;
+        }
+
+        /* Main Menu */
+        #menu-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            color: white;
+        }
+
+        .title-container h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            color: var(--primary);
+            text-shadow: 2px 4px 0px var(--primary-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: column; /* Membuat katak berada di atas teks */
+        }
+
+        .title-container h2 {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #cbd5e1;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        .menu-frog {
+            font-size: 7rem; /* Diperbesar dari 5rem */
+            animation: floatFrog 2s ease-in-out infinite;
+            display: block;
+            margin: 0 auto;
+        }
+
+        @keyframes floatFrog {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 6px 0 var(--primary-dark);
+            transition: all 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--primary-dark);
+        }
+        
+        .btn-secondary { background: var(--secondary); box-shadow: 0 6px 0 #1d4ed8; }
+        .btn-secondary:active { box-shadow: 0 2px 0 #1d4ed8; }
+        .btn-danger { background: var(--danger); box-shadow: 0 6px 0 #b91c1c; }
+        .btn-danger:active { box-shadow: 0 2px 0 #b91c1c; }
+
+        .creator-credits {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+
+        /* Game Screen Layout */
+        #game-screen {
+            flex-direction: row; /* Default desktop */
+            background: #0f172a;
+        }
+
+        .player-area {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            position: relative;
+            background: var(--bg-sky);
+            border: 2px solid #334155;
+            overflow: hidden;
+        }
+
+        /* Duel Mode Split */
+        #game-screen.duel-mode .player-area {
+            flex: 1;
+            border-right: 4px solid var(--dark);
+        }
+        #game-screen.duel-mode .player-area:last-child {
+            border-right: none;
+        }
+
+        /* Player UI Panels */
+        .question-panel {
+            flex: 1;
+            max-width: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .game-board {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(to bottom, #a7f3d0, #bae6fd);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top HUD */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--dark);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .hud-stats { display: flex; gap: 15px; }
+        .lives { color: #ef4444; }
+
+        /* Progress & Timer */
+        .progress-container {
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        
+        .timer-bar {
+            height: 6px; background: var(--danger); width: 100%; margin-bottom: 10px; border-radius: 3px;
+        }
+
+        /* Text Area */
+        .passage-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .passage-title { font-weight: bold; margin-bottom: 10px; color: var(--secondary); text-align: center;}
+        
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        /* Options Area */
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+        .option-btn {
+            background: white;
+            border: 2px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        .option-btn:hover { background: #f1f5f9; border-color: var(--secondary); }
+        .option-label { 
+            background: var(--dark); color: white; width: 24px; height: 24px; 
+            display: flex; justify-content: center; align-items: center; border-radius: 4px; font-weight: bold;
+        }
+
+        /* Game Board Elements */
+        .water-area {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 20%;
+            background: var(--water-deep);
+            z-index: 3;
+            overflow: hidden;
+        }
+        
+        .water-surface {
+            position: absolute; top: -10px; left: 0; width: 200%; height: 20px;
+            background: var(--water);
+            border-radius: 50%;
+            animation: wave 3s infinite linear;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0) scaleY(1); }
+            50% { transform: translateX(-25%) scaleY(1.2); }
+            100% { transform: translateX(-50%) scaleY(1); }
+        }
+
+        .rain-drop {
+            position: absolute; width: 2px; height: 10px; background: rgba(255,255,255,0.6);
+            bottom: 100%;
+            animation: fall linear forwards;
+            z-index: 4;
+        }
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+        .ripple {
+            position: absolute; border: 2px solid white; border-radius: 50%;
+            transform: translate(-50%, -50%); opacity: 1;
+            animation: rippleAnim 0.6s ease-out forwards;
+        }
+        @keyframes rippleAnim { to { width: 100px; height: 30px; opacity: 0; } }
+
+        .splash-particle {
+            position: absolute; background: white; border-radius: 50%; width: 6px; height: 6px;
+            animation: splashAnim 0.5s cubic-bezier(.2,.8,.5,1) forwards;
+        }
+        @keyframes splashAnim { to { transform: translate(var(--tx), var(--ty)); opacity: 0; } }
+
+        /* Leaves (Platforms) */
+        .leaf-container {
+            position: absolute;
+            width: 80px; height: 40px;
+            margin-left: -40px; margin-top: -20px;
+            display: flex; flex-direction: column; align-items: center;
+            transition: top 0.5s ease-out, opacity 0.5s;
+            z-index: 2;
+        }
+        
+        .leaf-shape {
+            width: 100%; height: 100%; background: var(--leaf);
+            border-radius: 50% 0 50% 0; box-shadow: 0 5px 0 var(--leaf-shadow);
+            transform: rotate(-15deg);
+        }
+        
+        .leaf-label {
+            position: absolute; top: -25px; background: white; color: var(--dark);
+            padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        /* Frog */
+        .frog {
+            position: absolute; width: 80px; height: 80px; /* Area diperbesar */
+            margin-left: -40px; margin-top: -40px;
+            font-size: 65px; line-height: 80px; text-align: center; /* Ukuran emoji katak diperbesar */
+            z-index: 5;
+            transition: transform 0.1s;
+        }
+
+        .frog.idle { animation: breathe 1s infinite alternate; }
+        @keyframes breathe { to { transform: scale(1.05, 0.95); } }
+
+        .frog.jumping { transition: left 0.4s linear, top 0.4s cubic-bezier(0.2, 1, 0.8, 1); }
+        .frog.falling { transition: left 0.3s linear, top 0.3s cubic-bezier(0.5, 0, 1, 1); transform: rotate(180deg); }
+        .frog.happy { animation: happyBounce 0.5s ease; }
+        @keyframes happyBounce { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-30px) scale(1.2);} }
+
+        /* Overlays & Modals */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal {
+            background: white; padding: 30px; border-radius: 16px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: scale(0.8); transition: transform 0.3s;
+        }
+        .overlay.active .modal { transform: scale(1); }
+
+        .modal h2 { margin-bottom: 15px; color: var(--dark); }
+        .modal p { margin-bottom: 20px; color: #64748b; }
+        
+        .feedback-banner {
+            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            padding: 15px 30px; border-radius: 20px; font-weight: bold; font-size: 1.5rem;
+            color: white; z-index: 50; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .feedback-banner.show { transform: translate(-50%, -50%) scale(1); }
+        .feedback-correct { background: var(--primary); }
+        .feedback-wrong { background: var(--danger); }
+        .feedback-exp { font-size: 0.9rem; font-weight: normal; margin-top: 5px; max-width: 300px; }
+
+        /* Global Controls (Fullscreen, Audio) */
+        .global-controls {
+            position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; z-index: 90;
+        }
+        .icon-btn {
+            background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .icon-btn:hover { background: rgba(0,0,0,0.8); }
+
+        /* Setup Screen Inputs */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+        .input-group input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #334155;
+            background: #0f172a; color: white; font-size: 1rem;
+        }
+        .input-group input:focus { border-color: var(--primary); outline: none; }
+
+        /* Responsive Design Rules */
+        /* Tablet & Desktop - Default is row for player area */
+
+        /* Mobile Portrait Simulation */
+        @media (orientation: portrait) and (max-width: 768px) {
+            #game-screen, #game-screen.duel-mode { flex-direction: column; }
+            .player-area { flex-direction: column; border-right: none; border-bottom: 2px solid #334155; }
+            
+            /* Put game board on top, questions on bottom */
+            .game-board { flex: 0.4; } /* 40% height for visual */
+            .question-panel { flex: 0.6; max-width: 100%; padding: 10px; }
+            
+            .passage-area { max-height: 120px; font-size: 0.85rem; }
+            .option-btn { padding: 10px; min-height: 44px; /* Touch target */ }
+            .hud-stats { font-size: 0.8rem; }
+            .leaf-label { font-size: 0.7rem; top: -20px; }
+            .frog { transform: scale(0.8); }
+        }
+
+        /* Mobile Landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .question-panel { padding: 10px; max-width: 45%; }
+            .passage-area { font-size: 0.8rem; padding: 10px; margin-bottom: 5px; }
+            .question-text { font-size: 0.9rem; margin-bottom: 5px; }
+            .option-btn { padding: 5px; font-size: 0.8rem; min-height: 35px; }
+            .leaf-container { transform: scale(0.7); }
+        }
+        
+        .hidden-element { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Global Controls -->
+    <div class="global-controls">
+        <button class="icon-btn" id="btn-audio" title="Mute/Unmute (M)">🔊</button>
+        <button class="icon-btn" id="btn-fs" title="Fullscreen (F)">⛶</button>
+        <button class="icon-btn" id="btn-pause" title="Pause (P)">⏸</button>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="menu-screen" class="screen">
+        <div class="title-container">
+            <h1><span class="menu-frog">🐸</span> FROGGY NARRATIVE</h1>
+            <h2>Jump, Answer, and Master Narrative Text!</h2>
+            <p style="margin-bottom: 2rem; color: #94a3b8;">Grade XII SMA English Learning Game</p>
+        </div>
+        <div class="menu-buttons">
+            <button class="btn" onclick="app.goToSetup('solo')">👤 SOLO MODE</button>
+            <button class="btn btn-secondary" onclick="app.goToSetup('duel')">⚔️ DUEL MODE</button>
+            <button class="btn btn-warning" onclick="app.showHowToPlay()" style="background: var(--warning); color: #451a03; box-shadow: 0 6px 0 #a16207;">❓ HOW TO PLAY</button>
+        </div>
+        <div class="creator-credits">Created by Agoes Kangen</div>
+    </div>
+
+    <!-- Setup Screen (Name Entry) -->
+    <div id="setup-screen" class="screen hidden" style="justify-content: center; align-items: center; background: #0f172a;">
+        <div class="modal" style="background: #1e293b; color: white; transform: scale(1);">
+            <h2 style="color: var(--primary);" id="setup-title">Setup Game</h2>
+            
+            <div id="setup-p1" class="input-group">
+                <label>Player 1 Name:</label>
+                <input type="text" id="input-p1" placeholder="Enter name..." maxlength="12">
+            </div>
+            
+            <div id="setup-p2" class="input-group hidden-element">
+                <label>Player 2 Name:</label>
+                <input type="text" id="input-p2" placeholder="Enter name..." maxlength="12">
+            </div>
+            
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="app.startGame()">▶ START GAME</button>
+            <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="app.showScreen('menu-screen')">BACK</button>
+        </div>
+    </div>
+
+    <!-- Game Screen (Dynamically populated) -->
+    <div id="game-screen" class="screen hidden">
+        <!-- Player areas injected here via JS -->
+    </div>
+
+    <!-- Pause Overlay -->
+    <div id="pause-overlay" class="overlay">
+        <div class="modal">
+            <h2>GAME PAUSED</h2>
+            <p>Take a deep breath.</p>
+            <div class="menu-buttons" style="margin: 0 auto;">
+                <button class="btn" onclick="app.resumeGame()">▶ RESUME</button>
+                <button class="btn btn-secondary" onclick="app.restartGame()">🔄 RESTART</button>
+                <button class="btn btn-danger" onclick="app.quitToMenu()">🚪 EXIT TO MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How To Play Overlay -->
+    <div id="how-overlay" class="overlay">
+        <div class="modal" style="max-width: 500px; text-align: left;">
+            <h2 style="text-align: center;">HOW TO PLAY</h2>
+            <ul style="margin-left: 20px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+                <li>Read the Narrative Text passage carefully.</li>
+                <li>Answer the question by selecting the correct platform (leaf).</li>
+                <li><strong>Correct Answer:</strong> Frog jumps happily! (+Score, +Combo).</li>
+                <li><strong>Wrong Answer:</strong> Frog falls into the water! (-1 Life).</li>
+                <li>Answer quickly before the timer runs out!</li>
+            </ul>
+            <h3 style="margin-bottom: 10px; font-size: 1rem;">Controls:</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">
+                <strong>Desktop:</strong> Mouse click, or Keyboard (1,2,3,4).<br>
+                <em>P1 Keys:</em> A, S, D, F | <em>P2 Keys (Duel):</em> ⬅, ⬇, ⬆, ➡<br>
+                <strong>Mobile:</strong> Tap the options.
+            </p>
+            <button class="btn" style="width: 100%;" onclick="document.getElementById('how-overlay').classList.remove('active')">GOT IT!</button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="screen hidden" style="justify-content: center; align-items: center; background: rgba(15, 23, 42, 0.95); overflow-y: auto;">
+        <div class="modal" style="max-width: 600px; width: 95%; background: var(--light);">
+            <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 10px;">🎉 COMPLETE!</h1>
+            
+            <div id="result-stats" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                <!-- Stats injected here -->
+            </div>
+
+            <div class="menu-buttons" style="margin: 0 auto; flex-direction: row; flex-wrap: wrap; justify-content: center;">
+                <button class="btn" onclick="app.restartGame()">🔄 PLAY AGAIN</button>
+                <button class="btn btn-danger" onclick="app.showScreen('menu-screen')">🏠 MAIN MENU</button>
+            </div>
+             <div class="creator-credits" style="position: relative; margin-top: 20px; color: #64748b;">Created by Agoes Kangen</div>
+        </div>
+    </div>
+
+    <script>
+        // --- QUESTION BANK ---
+        const narrativeQuestions = [
+            // Text 1: Malin Kundang
+            {
+                passageTitle: "Malin Kundang",
+                passage: "A long time ago, in a small village near the beach in West Sumatra, lived a woman and her son, Malin Kundang. They were very poor. Malin Kundang grew up as a skillful young boy. He always helped his mother. One day, he decided to sail overseas to become rich. Years later, he became a wealthy merchant with a huge ship and a beautiful wife. When his ship landed near his home village, his mother recognized him and ran to hug him. However, Malin Kundang was ashamed of her ragged clothes in front of his wife and crew. He denied she was his mother and pushed her away. Heartbroken, his mother cursed him to turn into a stone if he didn't apologize. Malin Kundang laughed and set sail. Suddenly, a huge storm wrecked his ship, and he was thrown onto a small island and turned into stone.",
+                questions: [
+                    { q: "What is the social function of this text?", opts: ["To entertain the readers with a story.", "To explain how a ship is built.", "To describe a beach in West Sumatra.", "To persuade readers to travel overseas."], ans: 0, exp: "Narrative texts aim to entertain or amuse readers with a story." },
+                    { q: "What is the main complication in the story?", opts: ["Malin Kundang denied his mother.", "Malin Kundang sailed overseas.", "Malin Kundang became rich.", "Malin Kundang helped his mother."], ans: 0, exp: "The complication is the main conflict, which happens when he rejects his mother." },
+                    { q: "What is the moral value of the story?", opts: ["We must always respect our parents.", "We should sail overseas to be rich.", "We must buy a huge ship.", "We should wear beautiful clothes."], ans: 1, ans: 0, exp: "The story teaches us not to be arrogant and to always respect our parents." }, // fixed ans:0
+                    { q: "'He denied she was his mother...' The word 'denied' has a similar meaning to...", opts: ["Rejected", "Accepted", "Admitted", "Believed"], ans: 0, exp: "Denied means refusing to admit the truth, similar to rejected." },
+                    { q: "Based on the generic structure, the last sentence belongs to...", opts: ["Resolution", "Orientation", "Complication", "Evaluation"], ans: 0, exp: "The resolution is the end of the story where the problem is solved (or ends tragically)." }
+                ]
+            },
+            // Text 2: The Legend of Lake Toba
+            {
+                passageTitle: "The Legend of Lake Toba",
+                passage: "Once upon a time, there was a man named Toba who lived alone. One day, he caught a large golden fish. To his surprise, the fish turned into a beautiful princess. She agreed to marry him on one condition: he must never tell anyone she was once a fish. Toba agreed and they had a son named Samosir. Samosir had a huge appetite. One day, his mother asked him to bring lunch to his father in the field. On the way, Samosir ate most of the food. When Toba saw the empty box, he got very angry and yelled, 'You son of a fish!' Suddenly, the sky turned dark, heavy rain fell, and a great flood submerged the area, forming a large lake. The woman turned back into a fish, and Samosir became an island in the middle.",
+                questions: [
+                    { q: "Where does the orientation of the story take place?", opts: ["In the beginning of the text.", "In the middle of the text.", "At the end of the text.", "It doesn't have an orientation."], ans: 0, exp: "Orientation introduces the characters and setting at the beginning." },
+                    { q: "What triggered the disaster in the story?", opts: ["Toba broke his promise.", "Samosir ate the food.", "The fish transformed.", "Toba went fishing."], ans: 0, exp: "The conflict escalates to disaster because Toba broke his promise not to mention the fish origin." },
+                    { q: "What can we infer about Samosir's character?", opts: ["Greedy and careless.", "Diligent and helpful.", "Smart and brave.", "Patient and calm."], ans: 0, exp: "Eating his father's lunch shows he lacked self-control and care." },
+                    { q: "'...a great flood submerged the area...' The antonym of 'submerged' is...", opts: ["Drained", "Flooded", "Drowned", "Covered"], ans: 0, exp: "Submerged means covered with water. Drained is the opposite." },
+                    { q: "What did Samosir turn into at the end of the story?", opts: ["An island.", "A lake.", "A fish.", "A statue."], ans: 0, exp: "The text states 'Samosir became an island in the middle.'" }
+                ]
+            },
+            // Text 3: Timun Mas
+            {
+                passageTitle: "Timun Mas (The Golden Cucumber)",
+                passage: "An old widow named Mbok Srini lived alone. She prayed to have a child. A giant heard her and gave her cucumber seeds. He told her to plant them and she would have a child, but she had to give the child back when she turned 17. A golden cucumber grew, and inside was a beautiful baby girl named Timun Mas. When Timun Mas was 17, the giant came to take her. Mbok Srini gave Timun Mas four magical bags containing cucumber seeds, needles, salt, and shrimp paste (terasi) to defend herself. As she ran, she threw the bags. The needles became a bamboo forest, the salt became a sea, and the shrimp paste became a boiling mud pit. The giant drowned in the boiling mud, and Timun Mas returned home safely.",
+                questions: [
+                    { q: "What is the communicative purpose of the text?", opts: ["To amuse the readers with a folktale.", "To inform how to plant cucumbers.", "To describe a giant.", "To explain the process of making shrimp paste."], ans: 0, exp: "As a narrative, its purpose is to amuse or entertain." },
+                    { q: "What was the giant's condition for giving the seeds?", opts: ["The child must be returned at age 17.", "The child must bring him food.", "Mbok Srini must pay him gold.", "Mbok Srini must work for him."], ans: 0, exp: "The giant demanded the child back when she turned 17." },
+                    { q: "Which magical item turned into a boiling mud pit?", opts: ["Shrimp paste.", "Salt.", "Needles.", "Cucumber seeds."], ans: 0, exp: "The text states 'the shrimp paste became a boiling mud pit.'" },
+                    { q: "What tense is mostly used in this Narrative Text?", opts: ["Past Tense", "Present Tense", "Future Tense", "Present Perfect Tense"], ans: 0, exp: "Narrative texts recount events from the past, thus using Past Tense." },
+                    { q: "What is the resolution of the story?", opts: ["The giant drowned and Timun Mas was safe.", "Mbok Srini got a cucumber seed.", "Timun Mas ran away.", "The giant asked for the child."], ans: 0, exp: "The resolution is the successful escape and the defeat of the giant." }
+                ]
+            },
+            // Text 4: The Lion and The Mouse
+            {
+                passageTitle: "The Lion and The Mouse",
+                passage: "A Lion lay asleep in the forest, his great head resting on his paws. A timid little Mouse came upon him unexpectedly, and in her fright and haste to get away, ran across the Lion's nose. Woken from his nap, the Lion laid his huge paw angrily on the tiny creature. 'Spare me!' begged the poor Mouse. 'Please let me go and some day I will surely repay you.' The Lion was much amused to think that a Mouse could ever help him. But he was generous and finally let the Mouse go. Some days later, the Lion was caught in a hunter's net. He roared in anger. The Mouse heard the voice, ran to the spot, and gnawed away the ropes that bound the Lion. 'Was I not right?' said the little Mouse.",
+                questions: [
+                    { q: "Why did the Lion let the Mouse go initially?", opts: ["He was amused and generous.", "He was afraid of the mouse.", "He was too tired to eat her.", "He didn't like mice."], ans: 0, exp: "The text says 'The Lion was much amused... But he was generous and finally let the Mouse go.'" },
+                    { q: "How did the Mouse help the Lion?", opts: ["By biting the ropes of the net.", "By calling other animals.", "By attacking the hunters.", "By bringing him food."], ans: 0, exp: "The mouse 'gnawed away the ropes that bound the Lion.'" },
+                    { q: "What character trait does the Mouse show at the end?", opts: ["Reliable / Keeping promises.", "Arrogant.", "Lazy.", "Cowardly."], ans: 0, exp: "The mouse proved reliable by keeping her promise to repay the Lion." },
+                    { q: "What is a good moral for this fable?", opts: ["Little friends may prove great friends.", "Lions should eat mice.", "Never sleep in the forest.", "Hunters always win."], ans: 0, exp: "The story shows that even a tiny creature can be of great help." },
+                    { q: "The word 'gnawed' in the text implies...", opts: ["Chewed constantly", "Pulled hard", "Cut with scissors", "Untied with hands"], ans: 0, exp: "Gnaw means to bite or chew on something persistently." }
+                ]
+            },
+            // Text 5: The Boy Who Cried Wolf
+            {
+                passageTitle: "The Boy Who Cried Wolf",
+                passage: "A shepherd boy tended his master's sheep near a dark forest. To amuse himself, he would shout, 'Wolf! Wolf!' The villagers would run up the hill to help him, only to find no wolf and the boy laughing. He did this trick twice. The villagers were angry and told him to save his shouting for when there really was a wolf. Later that day, a real wolf appeared and attacked the sheep. Terrified, the boy ran toward the village shouting 'Wolf! Wolf! Help!' But the villagers thought he was fooling them again and nobody came. The wolf destroyed the whole flock. The boy sat crying, realizing his mistake.",
+                questions: [
+                    { q: "Why did the boy cry 'Wolf' the first time?", opts: ["To amuse himself.", "Because he saw a wolf.", "To test his voice.", "To scare the sheep."], ans: 0, exp: "The text states he did it 'To amuse himself.'" },
+                    { q: "Why didn't the villagers come the final time?", opts: ["They thought it was another trick.", "They were too busy working.", "They were afraid of the wolf.", "They didn't hear him."], ans: 0, exp: "Because he lied before, they assumed he was tricking them again." },
+                    { q: "What is the central conflict of the story?", opts: ["The boy's lies vs. the villagers' trust.", "The boy vs. the master.", "The sheep vs. the grass.", "The villagers vs. the wolf."], ans: 0, exp: "The main issue is the loss of trust caused by the boy's lies." },
+                    { q: "'The wolf destroyed the whole flock.' 'Flock' refers to a group of...", opts: ["Sheep", "Wolves", "Villagers", "Trees"], ans: 0, exp: "A flock is a collective noun commonly used for sheep or birds." },
+                    { q: "What proverb best describes the moral of this story?", opts: ["A liar will not be believed, even when he speaks the truth.", "Look before you leap.", "Don't count your chickens before they hatch.", "Actions speak louder than words."], ans: 0, exp: "The core lesson is about the consequences of lying and losing trust." }
+                ]
+            },
+            // Text 6: The Clever Farmer
+            {
+                passageTitle: "The Clever Farmer",
+                passage: "One hot day, a thirsty crow flew all over the fields looking for water. For a long time, he could not find any. Suddenly, he saw a pitcher under a tree. He flew straight down to see if there was any water inside. Yes, he could see some water inside the pitcher! The crow tried to push his head into the pitcher. Sadly, he found that the neck of the pitcher was too narrow. Then he tried to push the pitcher to tilt for the water to flow out, but the pitcher was too heavy. The crow thought hard for a while. Then, looking around it, he saw some pebbles. He pecked the pebbles one by one and dropped them into the pitcher. The water level rose until he could reach it.",
+                questions: [
+                    { q: "What is the main idea of the first paragraph?", opts: ["A thirsty crow looking for water.", "A crow dropping pebbles.", "A heavy pitcher.", "A hot day in the field."], ans: 0, exp: "The opening sets the scene: a crow searching for water." },
+                    { q: "Why couldn't the crow drink initially?", opts: ["The pitcher's neck was too narrow.", "The water was dirty.", "He wasn't thirsty.", "There was no water."], ans: 0, exp: "The text states 'the neck of the pitcher was too narrow.'" },
+                    { q: "What did the crow do to solve the problem?", opts: ["Dropped pebbles into the pitcher.", "Broke the pitcher.", "Flew away to another place.", "Called a farmer for help."], ans: 0, exp: "He raised the water level by dropping pebbles." },
+                    { q: "The word 'narrow' is the antonym of...", opts: ["Wide", "Thin", "Long", "Deep"], ans: 0, exp: "Narrow means of small width, the opposite is wide." },
+                    { q: "What character trait describes the crow?", opts: ["Resourceful and persistent.", "Lazy and stupid.", "Angry and impatient.", "Greedy and selfish."], ans: 0, exp: "Using pebbles to raise water shows intelligence and resourcefulness." }
+                ]
+            }
+        ];
+
+        // Flatten into 30 single questions
+        let allQuestionsRaw = [];
+        let idCounter = 1;
+        narrativeQuestions.forEach(passageObj => {
+            passageObj.questions.forEach(qObj => {
+                allQuestionsRaw.push({
+                    id: idCounter++,
+                    passageTitle: passageObj.passageTitle,
+                    passage: passageObj.passage,
+                    qText: qObj.q,
+                    opts: qObj.opts,
+                    originalAns: qObj.ans,
+                    exp: qObj.exp
+                });
+            });
+        });
+
+        // Ensure we have exactly 30 (duplicate some if needed just to hit the number, but we have exactly 30 here)
+        while(allQuestionsRaw.length < 30) {
+            allQuestionsRaw.push({...allQuestionsRaw[Math.floor(Math.random() * allQuestionsRaw.length)], id: idCounter++});
+        }
+        allQuestionsRaw = allQuestionsRaw.slice(0, 30); // Cap at 30
+
+        // --- GAME STATE ---
+        const state = {
+            mode: 'solo', // 'solo' or 'duel'
+            status: 'menu', // menu, setup, playing, paused, result
+            questions: [], 
+            audioEnabled: true,
+            players: {
+                p1: { id: 'p1', name: 'Player 1', score: 0, combo: 0, maxCombo: 0, lives: 3, qIndex: 0, correctCount: 0, timer: 15, timerId: null, currentOptions: [], answered: false },
+                p2: { id: 'p2', name: 'Player 2', score: 0, combo: 0, maxCombo: 0, lives: 3, qIndex: 0, correctCount: 0, timer: 15, timerId: null, currentOptions: [], answered: false }
+            }
+        };
+
+        // --- AUDIO SYSTEM (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration, vol=0.1, slideFreq = null) {
+            if(!state.audioEnabled) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            if(slideFreq) {
+                osc.frequency.exponentialRampToValueAtTime(slideFreq, audioCtx.currentTime + duration);
+            }
+            
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sfx = {
+            jump: () => playTone(300, 'sine', 0.3, 0.1, 600),
+            correct: () => { playTone(400, 'square', 0.1, 0.05); setTimeout(()=>playTone(600, 'square', 0.2, 0.05), 100); },
+            wrong: () => playTone(150, 'sawtooth', 0.4, 0.1, 100),
+            splash: () => playTone(100, 'square', 0.3, 0.1, 50), // rough noise approximation
+            click: () => playTone(800, 'sine', 0.05, 0.05),
+            gameOver: () => { playTone(200, 'sawtooth', 0.5, 0.1, 100); setTimeout(()=>playTone(150, 'sawtooth', 0.8, 0.1, 50), 500); }
+        };
+
+        // --- HELPER FUNCTIONS ---
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        function prepareQuestions() {
+            let shuffled = shuffleArray(allQuestionsRaw);
+            return shuffled.map(q => {
+                // Map original options to keep track of correct answer
+                let optionsWithMeta = q.opts.map((text, idx) => ({ text, isCorrect: idx === q.originalAns }));
+                let shuffledOptions = shuffleArray(optionsWithMeta);
+                return {
+                    ...q,
+                    options: shuffledOptions,
+                    correctIndex: shuffledOptions.findIndex(o => o.isCorrect)
+                };
+            });
+        }
+
+        const app = {
+            init() {
+                this.loadSettings();
+                this.bindGlobalEvents();
+            },
+
+            loadSettings() {
+                const vol = localStorage.getItem('froggy_audio');
+                if(vol !== null) {
+                    state.audioEnabled = vol === 'true';
+                    document.getElementById('btn-audio').innerText = state.audioEnabled ? '🔊' : '🔇';
+                }
+            },
+
+            toggleAudio() {
+                state.audioEnabled = !state.audioEnabled;
+                localStorage.setItem('froggy_audio', state.audioEnabled);
+                document.getElementById('btn-audio').innerText = state.audioEnabled ? '🔊' : '🔇';
+                sfx.click();
+            },
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                    document.getElementById('btn-fs').innerText = '✖';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                        document.getElementById('btn-fs').innerText = '⛶';
+                    }
+                }
+            },
+
+            showScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                document.getElementById(id).classList.remove('hidden');
+            },
+
+            goToSetup(mode) {
+                sfx.click();
+                state.mode = mode;
+                document.getElementById('setup-title').innerText = mode === 'solo' ? 'SOLO MODE' : 'DUEL MODE';
+                document.getElementById('setup-p2').classList.toggle('hidden-element', mode === 'solo');
+                
+                // Load names if exist
+                document.getElementById('input-p1').value = localStorage.getItem('froggy_p1') || '';
+                if(mode === 'duel') document.getElementById('input-p2').value = localStorage.getItem('froggy_p2') || '';
+                
+                this.showScreen('setup-screen');
+            },
+
+            showHowToPlay() {
+                sfx.click();
+                document.getElementById('how-overlay').classList.add('active');
+            },
+
+            startGame() {
+                sfx.click();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+
+                // Setup state
+                const p1Name = document.getElementById('input-p1').value.trim() || 'Player 1';
+                localStorage.setItem('froggy_p1', p1Name);
+                state.players.p1 = { id: 'p1', name: p1Name, score: 0, combo: 0, maxCombo: 0, lives: 3, qIndex: 0, correctCount: 0, timer: 15, timerId: null, answered: false };
+                
+                if (state.mode === 'duel') {
+                    const p2Name = document.getElementById('input-p2').value.trim() || 'Player 2';
+                    localStorage.setItem('froggy_p2', p2Name);
+                    state.players.p2 = { id: 'p2', name: p2Name, score: 0, combo: 0, maxCombo: 0, lives: 3, qIndex: 0, correctCount: 0, timer: 15, timerId: null, answered: false };
+                }
+
+                state.questions = prepareQuestions(); // Get 30 shuffled questions
+                state.status = 'playing';
+
+                // Build UI
+                const container = document.getElementById('game-screen');
+                container.innerHTML = '';
+                container.className = `screen ${state.mode === 'duel' ? 'duel-mode' : ''}`;
+                
+                container.appendChild(this.createPlayerUI('p1'));
+                if(state.mode === 'duel') container.appendChild(this.createPlayerUI('p2'));
+
+                this.showScreen('game-screen');
+
+                // Start Game Loop
+                this.loadQuestion('p1');
+                if(state.mode === 'duel') this.loadQuestion('p2');
+            },
+
+            createPlayerUI(pId) {
+                const div = document.createElement('div');
+                div.className = 'player-area';
+                div.id = `area-${pId}`;
+
+                const controlsInfo = state.mode === 'solo' ? 'Keys: 1-4 or A,S,D,F' : (pId === 'p1' ? 'Keys: A,S,D,F' : 'Keys: ⬅⬇⬆➡');
+
+                div.innerHTML = `
+                    <div class="question-panel">
+                        <div class="hud">
+                            <span class="p-name">🐸 ${state.players[pId].name}</span>
+                            <div class="hud-stats">
+                                <span>🏆 <span id="${pId}-score">0</span></span>
+                                <span>🔥 <span id="${pId}-combo">0</span></span>
+                                <span class="lives" id="${pId}-lives">❤️❤️❤️</span>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="${pId}-progress"></div>
+                        </div>
+                        <div style="font-size:0.8rem; color:#64748b; margin-bottom:5px; text-align:right;">${controlsInfo}</div>
+                        <div class="passage-area">
+                            <div class="passage-title" id="${pId}-passage-title"></div>
+                            <div id="${pId}-passage-text"></div>
+                        </div>
+                        <div class="question-text" id="${pId}-question"></div>
+                        <div class="options-grid" id="${pId}-options">
+                            <!-- Buttons injected here -->
+                        </div>
+                    </div>
+                    
+                    <div class="game-board" id="${pId}-board">
+                        <div class="timer-bar" id="${pId}-timer"></div>
+                        
+                        <!-- Leaves Area -->
+                        <div id="${pId}-leaves-area" style="position: absolute; width: 100%; height: 80%; top: 0;"></div>
+
+                        <div class="frog idle" id="${pId}-frog" style="bottom: 25%; left: 50%;">🐸</div>
+                        
+                        <!-- Feedback Banner -->
+                        <div class="feedback-banner" id="${pId}-feedback">
+                            <div id="${pId}-fb-title"></div>
+                            <div class="feedback-exp" id="${pId}-fb-exp"></div>
+                        </div>
+
+                        <div class="water-area" id="${pId}-water">
+                            <div class="water-surface"></div>
+                        </div>
+                    </div>
+                `;
+                return div;
+            },
+
+            loadQuestion(pId) {
+                const pState = state.players[pId];
+                if(pState.lives <= 0) return; // Dead
+                
+                if(pState.qIndex >= state.questions.length) {
+                    this.checkEndGame();
+                    return;
+                }
+
+                const q = state.questions[pState.qIndex];
+                pState.answered = false;
+                
+                // Update text UI
+                document.getElementById(`${pId}-passage-title`).innerText = q.passageTitle;
+                document.getElementById(`${pId}-passage-text`).innerText = q.passage;
+                document.getElementById(`${pId}-question`).innerText = `Q${pState.qIndex + 1}: ${q.qText}`;
+                document.getElementById(`${pId}-progress`).style.width = `${((pState.qIndex) / 30) * 100}%`;
+
+                // Render Options & Leaves
+                const optionsContainer = document.getElementById(`${pId}-options`);
+                const leavesArea = document.getElementById(`${pId}-leaves-area`);
+                optionsContainer.innerHTML = '';
+                leavesArea.innerHTML = '';
+
+                const labels = ['A', 'B', 'C', 'D'];
+                
+                q.options.forEach((opt, idx) => {
+                    // Panel Button
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `<span class="option-label">${labels[idx]}</span> ${opt.text}`;
+                    btn.onclick = () => this.handleAnswer(pId, idx);
+                    optionsContainer.appendChild(btn);
+
+                    // Leaf Platform
+                    const leaf = document.createElement('div');
+                    leaf.className = 'leaf-container';
+                    leaf.id = `${pId}-leaf-${idx}`;
+                    // Distribute horizontally, place around middle vertically
+                    const leftPos = 20 + (idx * 20); // 20%, 40%, 60%, 80%
+                    leaf.style.left = `${leftPos}%`;
+                    leaf.style.top = `-100px`; // Start above screen
+                    
+                    leaf.innerHTML = `
+                        <div class="leaf-label">${labels[idx]}</div>
+                        <div class="leaf-shape"></div>
+                    `;
+                    leavesArea.appendChild(leaf);
+
+                    // Animate leaf falling into place
+                    setTimeout(() => {
+                        leaf.style.top = `60%`; // Target Y for jumping
+                    }, 50 * idx);
+                });
+
+                // Reset Frog
+                const frog = document.getElementById(`${pId}-frog`);
+                frog.className = 'frog idle';
+                frog.style.bottom = '25%'; /* Posisi awal ditarik sedikit lebih ke tengah */
+                frog.style.left = '50%';
+                frog.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+                frog.style.opacity = '1';
+
+                // Timer
+                pState.timer = 15;
+                this.updateTimerUI(pId);
+                clearInterval(pState.timerId);
+                pState.timerId = setInterval(() => this.tickTimer(pId), 1000);
+            },
+
+            tickTimer(pId) {
+                if(state.status !== 'playing') return;
+                const pState = state.players[pId];
+                if(pState.answered) return;
+
+                pState.timer--;
+                this.updateTimerUI(pId);
+
+                if(pState.timer <= 0) {
+                    this.handleAnswer(pId, -1); // Timeout = wrong
+                }
+            },
+
+            updateTimerUI(pId) {
+                const timerBar = document.getElementById(`${pId}-timer`);
+                if(timerBar) {
+                    const pct = (state.players[pId].timer / 15) * 100;
+                    timerBar.style.width = `${pct}%`;
+                    timerBar.style.background = pct < 30 ? 'var(--danger)' : (pct < 60 ? 'var(--warning)' : 'var(--primary)');
+                }
+            },
+
+            handleAnswer(pId, selectedIdx) {
+                const pState = state.players[pId];
+                if(pState.answered || pState.lives <= 0 || state.status !== 'playing') return;
+                
+                pState.answered = true;
+                clearInterval(pState.timerId);
+
+                const q = state.questions[pState.qIndex];
+                const isCorrect = selectedIdx === q.correctIndex;
+                const frog = document.getElementById(`${pId}-frog`);
+                
+                sfx.jump();
+
+                if (isCorrect) {
+                    // Correct Logic
+                    pState.score += 100;
+                    pState.combo++;
+                    if(pState.combo > pState.maxCombo) pState.maxCombo = pState.combo;
+                    pState.correctCount++;
+                    
+                    // Combo Bonus
+                    if(pState.combo >= 2) pState.score += Math.min(25 * (pState.combo - 1), 100);
+
+                    // Visual Jump to Leaf
+                    frog.className = 'frog jumping';
+                    const targetLeft = 20 + (selectedIdx * 20);
+                    frog.style.left = `${targetLeft}%`;
+                    frog.style.bottom = '40%'; // approximate leaf position from bottom
+                    
+                    setTimeout(() => {
+                        frog.className = 'frog happy';
+                        sfx.correct();
+                        this.showFeedback(pId, true, q.exp);
+                        this.updateStatsUI(pId);
+                        this.createParticles(pId, targetLeft, 40);
+                        
+                        setTimeout(() => this.nextTurn(pId), 1500);
+                    }, 400);
+
+                } else {
+                    // Wrong Logic
+                    pState.combo = 0;
+                    pState.lives--;
+                    
+                    // Visual Fall
+                    frog.className = 'frog falling';
+                    const targetLeft = selectedIdx === -1 ? 50 : 20 + (selectedIdx * 20);
+                    frog.style.left = `${targetLeft}%`;
+                    frog.style.bottom = '10%'; // hit water
+
+                    setTimeout(() => {
+                        frog.style.opacity = '0';
+                        sfx.splash();
+                        this.createSplash(pId, targetLeft);
+                        this.showFeedback(pId, false, `Correct was: ${['A','B','C','D'][q.correctIndex]}<br>${q.exp}`);
+                        this.updateStatsUI(pId);
+
+                        setTimeout(() => {
+                            if(pState.lives <= 0) {
+                                this.handleGameOver(pId);
+                            } else {
+                                this.nextTurn(pId);
+                            }
+                        }, 2500);
+                    }, 300);
+                }
+            },
+
+            createParticles(pId, leftPct, bottomPct) {
+                const board = document.getElementById(`${pId}-board`);
+                for(let i=0; i<10; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'splash-particle';
+                    p.style.left = `${leftPct}%`;
+                    p.style.bottom = `${bottomPct}%`;
+                    p.style.background = 'var(--warning)';
+                    p.style.setProperty('--tx', `${(Math.random()-0.5)*100}px`);
+                    p.style.setProperty('--ty', `${(Math.random()-0.5)*100}px`);
+                    board.appendChild(p);
+                    setTimeout(()=>p.remove(), 500);
+                }
+            },
+
+            createSplash(pId, leftPct) {
+                const water = document.getElementById(`${pId}-water`);
+                
+                // Ripple
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.left = `${leftPct}%`;
+                ripple.style.top = '10px';
+                water.appendChild(ripple);
+                setTimeout(()=>ripple.remove(), 600);
+
+                // Rain drops effect
+                const board = document.getElementById(`${pId}-board`);
+                for(let i=0; i<20; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'rain-drop';
+                    drop.style.left = `${Math.random()*100}%`;
+                    drop.style.animationDuration = `${0.3 + Math.random()*0.4}s`;
+                    board.appendChild(drop);
+                    setTimeout(()=>drop.remove(), 1000);
+                }
+            },
+
+            showFeedback(pId, isCorrect, text) {
+                const fb = document.getElementById(`${pId}-feedback`);
+                const title = document.getElementById(`${pId}-fb-title`);
+                const exp = document.getElementById(`${pId}-fb-exp`);
+                
+                fb.className = `feedback-banner show ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+                title.innerText = isCorrect ? '🎉 CORRECT!' : '💦 NOT QUITE!';
+                exp.innerHTML = text;
+
+                setTimeout(() => fb.classList.remove('show'), 2000);
+            },
+
+            updateStatsUI(pId) {
+                const pState = state.players[pId];
+                document.getElementById(`${pId}-score`).innerText = pState.score;
+                document.getElementById(`${pId}-combo`).innerText = pState.combo;
+                document.getElementById(`${pId}-lives`).innerText = '❤️'.repeat(pState.lives) + '💔'.repeat(3 - pState.lives);
+            },
+
+            nextTurn(pId) {
+                const pState = state.players[pId];
+                pState.qIndex++;
+                
+                // Animate old leaves out
+                const leavesArea = document.getElementById(`${pId}-leaves-area`);
+                Array.from(leavesArea.children).forEach(leaf => {
+                    leaf.style.top = '100%';
+                    leaf.style.opacity = '0';
+                });
+
+                setTimeout(() => {
+                    this.loadQuestion(pId);
+                    this.checkEndGame();
+                }, 500);
+            },
+
+            handleGameOver(pId) {
+                const pState = state.players[pId];
+                sfx.gameOver();
+                const frog = document.getElementById(`${pId}-frog`);
+                frog.innerHTML = '💀';
+                frog.style.opacity = 1;
+                frog.style.transform = 'translateY(10px) rotate(180deg)'; // floating in water
+                
+                const title = document.getElementById(`${pId}-passage-title`);
+                title.innerText = 'GAME OVER';
+                title.style.color = 'var(--danger)';
+                document.getElementById(`${pId}-passage-text`).innerHTML = `<b>Out of lives!</b><br>Wait for the game to end.`;
+                document.getElementById(`${pId}-options`).innerHTML = '';
+                
+                this.checkEndGame();
+            },
+
+            checkEndGame() {
+                const p1Done = state.players.p1.qIndex >= state.questions.length || state.players.p1.lives <= 0;
+                let isEnd = false;
+
+                if(state.mode === 'solo') {
+                    isEnd = p1Done;
+                } else {
+                    const p2Done = state.players.p2.qIndex >= state.questions.length || state.players.p2.lives <= 0;
+                    isEnd = p1Done && p2Done;
+                }
+
+                if(isEnd) {
+                    state.status = 'result';
+                    setTimeout(() => this.showResult(), 1000);
+                }
+            },
+
+            showResult() {
+                const container = document.getElementById('result-stats');
+                container.innerHTML = '';
+                
+                const buildStatCard = (pId) => {
+                    const p = state.players[pId];
+                    const acc = Math.round((p.correctCount / Math.min(p.qIndex, 30)) * 100) || 0;
+                    return `
+                        <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #cbd5e1; flex: 1; min-width: 200px;">
+                            <h2 style="color: var(--dark); margin-bottom: 10px;">${p.name}</h2>
+                            <p><strong>Score:</strong> ${p.score}</p>
+                            <p><strong>Correct:</strong> ${p.correctCount} / 30</p>
+                            <p><strong>Accuracy:</strong> ${acc}%</p>
+                            <p><strong>Best Combo:</strong> ${p.maxCombo}</p>
+                        </div>
+                    `;
+                };
+
+                container.innerHTML += buildStatCard('p1');
+                if(state.mode === 'duel') {
+                    container.innerHTML += buildStatCard('p2');
+                }
+
+                this.showScreen('result-screen');
+            },
+
+            togglePause() {
+                if(state.status !== 'playing' && state.status !== 'paused') return;
+                
+                sfx.click();
+                if(state.status === 'playing') {
+                    state.status = 'paused';
+                    document.getElementById('pause-overlay').classList.add('active');
+                } else {
+                    this.resumeGame();
+                }
+            },
+
+            resumeGame() {
+                sfx.click();
+                state.status = 'playing';
+                document.getElementById('pause-overlay').classList.remove('active');
+            },
+
+            restartGame() {
+                sfx.click();
+                document.getElementById('pause-overlay').classList.remove('active');
+                document.getElementById('result-screen').classList.add('hidden');
+                this.startGame();
+            },
+
+            quitToMenu() {
+                sfx.click();
+                state.status = 'menu';
+                document.getElementById('pause-overlay').classList.remove('active');
+                this.showScreen('menu-screen');
+            },
+
+            bindGlobalEvents() {
+                document.getElementById('btn-audio').onclick = () => this.toggleAudio();
+                document.getElementById('btn-fs').onclick = () => this.toggleFullscreen();
+                document.getElementById('btn-pause').onclick = () => this.togglePause();
+
+                window.addEventListener('keydown', (e) => {
+                    // Global Shortcuts
+                    if(e.key.toLowerCase() === 'm') this.toggleAudio();
+                    if(e.key.toLowerCase() === 'f') this.toggleFullscreen();
+                    if(e.key.toLowerCase() === 'p' || e.key === 'Escape') {
+                         // Only toggle pause if in game, don't trap ESC if trying to exit fullscreen natively
+                         if(state.status === 'playing' || state.status === 'paused') {
+                             if(e.key !== 'Escape' || !document.fullscreenElement) this.togglePause();
+                         }
+                    }
+
+                    if(state.status !== 'playing') return;
+
+                    // Player 1 Controls (Solo: 1234 or ASDF, Duel: ASDF)
+                    if(state.mode === 'solo') {
+                        if(['1', 'a', 'A'].includes(e.key)) this.handleAnswer('p1', 0);
+                        if(['2', 's', 'S'].includes(e.key)) this.handleAnswer('p1', 1);
+                        if(['3', 'd', 'D'].includes(e.key)) this.handleAnswer('p1', 2);
+                        if(['4', 'f', 'F'].includes(e.key)) this.handleAnswer('p1', 3);
+                    } else {
+                        // Duel - P1
+                        if(['a', 'A'].includes(e.key)) this.handleAnswer('p1', 0);
+                        if(['s', 'S'].includes(e.key)) this.handleAnswer('p1', 1);
+                        if(['d', 'D'].includes(e.key)) this.handleAnswer('p1', 2);
+                        if(['f', 'F'].includes(e.key)) this.handleAnswer('p1', 3);
+                        // Duel - P2 (Arrows)
+                        if(e.key === 'ArrowLeft') this.handleAnswer('p2', 0);
+                        if(e.key === 'ArrowDown') this.handleAnswer('p2', 1);
+                        if(e.key === 'ArrowUp')   this.handleAnswer('p2', 2);
+                        if(e.key === 'ArrowRight') this.handleAnswer('p2', 3);
+                    }
+                });
+            }
+        };
+
+        // Boot
+        window.onload = () => app.init();
+
+    </script>
+</body>
+</html>
